@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>WebSocket Counter</title>
 
     <style>
         #counter {
@@ -16,28 +16,32 @@
     <div id="counter"></div>
 
     <script>
-        // Function to update the counter element with data from the API
-        function updateCounter() {
-            // Make a GET request to the API
-            fetch('http://127.0.0.1:4000/blink_counter')
-                .then(response => response.json())
-                .then(data => {
-                    // Get the blink_counter value from the JSON response
-                    const blinkCounter = data.blink_counter;
+        const counterElement = document.getElementById('counter');
+        const socket = new WebSocket('ws://localhost:4000/counter'); // Replace with your server URL
 
-                    // Update the counter element with the value
-                    document.getElementById('counter').textContent = `Blink Counter: ${blinkCounter}`;
-                })
-                .catch(error => {
-                    console.error('Error fetching data:', error);
-                });
-        }
+        socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const blinkCounter = data.contador;
+            counterElement.textContent = `Blink Counter: ${blinkCounter}`;
+        };
 
-        // Update the counter every 500 milliseconds
-        setInterval(updateCounter, 50);
+        socket.onerror = (error) => {
+            console.error('WebSocket Error:', error);
+        };
 
-        // Initial update
-        updateCounter();
+        socket.onclose = (event) => {
+            if (event.wasClean) {
+                console.log(`WebSocket connection closed cleanly, code=${event.code}, reason=${event.reason}`);
+            } else {
+                console.error('WebSocket connection died');
+            }
+        };
+
+        // Initial update (optional)
+        // You can remove this if you only want updates when the counter changes.
+        socket.onopen = () => {
+            socket.send('RequestInitialCounterValue');
+        };
     </script>
 </body>
 </html>

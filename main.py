@@ -2,7 +2,9 @@ from typing import Union
 from face_recognition import recog
 import threading
 
-from fastapi import FastAPI
+from fastapi import FastAPI, WebSocket
+import asyncio
+import json
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -40,6 +42,33 @@ def read_blink_counter():
     return {"blink_counter": f"{app.rec.contador}"}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+websockets = set()
+
+
+# Função para enviar atualizações para todos os clientes WebSocket conectados
+async def send_updates():
+    while True:
+        if len(websockets) > 0:
+            contador_atual = app.rec.contador
+            update_message = json.dumps({"contador": contador_atual})
+            await asyncio.gather(*[ws.send_text(update_message) for ws in websockets])
+        await asyncio.sleep(0.1)
+
+
+@app.websocket("/counter")
+async def counter_websocket(websocket: WebSocket):
+    # Aceitar a conexão WebSocket
+    await websocket.accept()
+    websockets.add(websocket)
+
+    try:
+        while True:
+            # Esperar por mensagens do cliente (não é necessário neste exemplo)
+            await websocket.receive_text()
+    except:
+        websockets.remove(websocket)
+    finally:
+        await websocket.close()
+
+
+asyncio.create_task(send_updates())
