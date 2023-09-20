@@ -17,7 +17,39 @@
 
     <script>
         const counterElement = document.getElementById('counter');
-        const socket = new WebSocket('ws://localhost:4000/counter'); // Replace with your server URL
+        function connect() {
+            var ws = new WebSocket('ws://localhost:4000/counter');
+
+            ws.onopen = function() {
+                // subscribe to some channels
+                ws.send(JSON.stringify({
+                    //.... some message the I must send when I connect ....
+                }));
+            };
+
+            ws.onmessage = function(e) {
+                const data = JSON.parse(event.data);
+                const blinkCounter = data.contador;
+                counterElement.textContent = `Blink Counter: ${blinkCounter}`;
+            };
+
+            ws.onclose = function(e) {
+                console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+            };
+
+            ws.onerror = function(err) {
+                console.error('Socket encountered error: ', err.message, 'Closing socket');
+                ws.close();
+                setTimeout(connect,100);
+            };
+
+            return ws
+        }
+
+        wes = connect();
+        
+        /*
+        var socket = new WebSocket('ws://localhost:4000/counter'); // Replace with your server URL
 
         socket.onmessage = (event) => {
             const data = JSON.parse(event.data);
@@ -27,6 +59,7 @@
 
         socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
+            setTimeout(function() {console.log("Alguma coisa")}, 1000);           
         };
 
         socket.onclose = (event) => {
@@ -42,6 +75,7 @@
         socket.onopen = () => {
             socket.send('RequestInitialCounterValue');
         };
+        */ 
     </script>
 </body>
 </html>
