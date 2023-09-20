@@ -19,7 +19,7 @@
         // Function to update the counter element with data from the API
         function updateCounter() {
             // Make a GET request to the API
-            fetch('http://127.0.0.1:56565/blink_counter')
+            fetch('http://127.0.0.1:4000/blink_counter')
                 .then(response => response.json())
                 .then(data => {
                     // Get the blink_counter value from the JSON response
@@ -34,7 +34,7 @@
         }
 
         // Update the counter every 500 milliseconds
-        setInterval(updateCounter, 1000);
+        setInterval(updateCounter, 50);
 
         // Initial update
         updateCounter();

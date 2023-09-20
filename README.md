@@ -30,5 +30,5 @@
 ## Running the server
 - Run the server by executing the following command:
 
-        uvicorn main:app --reload --port 56565
+        uvicorn main:app --reload --port 4000
         
