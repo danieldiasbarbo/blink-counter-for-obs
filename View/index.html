@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt/br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <style>
+        #counter {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div id="counter"></div>
+
+    <script>
+        // Function to update the counter element with data from the API
+        function updateCounter() {
+            // Make a GET request to the API
+            fetch('http://127.0.0.1:56565/blink_counter')
+                .then(response => response.json())
+                .then(data => {
+                    // Get the blink_counter value from the JSON response
+                    const blinkCounter = data.blink_counter;
+
+                    // Update the counter element with the value
+                    document.getElementById('counter').textContent = `Blink Counter: ${blinkCounter}`;
+                })
+                .catch(error => {
+                    console.error('Error fetching data:', error);
+                });
+        }
+
+        // Update the counter every 500 milliseconds
+        setInterval(updateCounter, 1000);
+
+        // Initial update
+        updateCounter();
+    </script>
+</body>
+</html>
